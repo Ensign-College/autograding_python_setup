@@ -6,7 +6,7 @@ setup(
     description="A central setup module for shared logic.",
     author="Sean",
     author_email="sean",
-    url="https://github.com/yourusername/central_setup",
+    url="https://github.com/Ensign-College/autograding_python_setup",
     packages=find_packages(),
     install_requires=[
         "requests",  # Add any dependencies here
