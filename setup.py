@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="central_setup",
+    name="autograding_python_setup",
     version="0.1.0",
     description="A central setup module for shared logic.",
     author="Sean",
