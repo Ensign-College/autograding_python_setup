@@ -1,0 +1,20 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="central_setup",
+    version="0.1.0",
+    description="A central setup module for shared logic.",
+    author="Sean",
+    author_email="sean",
+    url="https://github.com/yourusername/central_setup",
+    packages=find_packages(),
+    install_requires=[
+        "requests",  # Add any dependencies here
+    ],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires=">=3.6",
+)
