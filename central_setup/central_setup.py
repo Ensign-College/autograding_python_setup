@@ -81,7 +81,7 @@ def get_github_username_and_slug(github_token):
                 f"Unable to detect slug in {current_directory}.")
     return None, None
 
-def run_program(inputs):
+def run_program(inputs,program_name):
     """Run the student's program using subprocess and return the output."""
     # Convert the inputs into a single string, each input followed by a newline
     input_data = '\n'.join(inputs) + '\n'
@@ -89,7 +89,7 @@ def run_program(inputs):
     try:
         # Run the student's program and capture output
         result = subprocess.run(
-            ['python3', 'first_program.py'],  # Adjust this command if using a different Python version or path
+            ['python3', program_name],  # Adjust this command if using a different Python version or path
             input=input_data,
             text=True,
             capture_output=True,
