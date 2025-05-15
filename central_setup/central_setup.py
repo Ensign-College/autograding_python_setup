@@ -4,6 +4,8 @@ import json
 import socket
 import os
 import platform
+from dotenv import load_dotenv
+load_dotenv()# this loads the .env file in the current directory
 
 def run_single_test(test_name, test_point_key, offline_feedback, pre_test_setup):
     test_outputs, test_points_awarded, test_feedback, test_response_data = pre_test_setup(test_name=test_name)
@@ -139,9 +141,12 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
         "gitHubUserName": gitHubUserId
     }
 
+    # Get base URL from environment variable or use default
+    autograding_base_url = os.environ.get('AUTOGRADING_BASE_URL', 'https://autograding-api-next.vercel.app/api/autograde')
+    
     # Send the POST request
     response = requests.post(
-        'https://autograding-api-next.vercel.app/api/autograde', 
+        autograding_base_url, 
         json=data, 
         headers=headers
     )

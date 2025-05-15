@@ -1,1 +1,12 @@
 requests
+python-dotenv
+
+# Testing dependencies
+pytest
+pytest-mock
+pytest-cov
+
+# Development dependencies
+black
+flake8
+isort
