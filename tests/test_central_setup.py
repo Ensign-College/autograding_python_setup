@@ -1,23 +1,24 @@
-import unittest
-from unittest.mock import patch, MagicMock, mock_open
-import os
 import json
-import sys
+import os
+import platform
 import socket
+import subprocess
+import sys
+import unittest
+from unittest.mock import MagicMock, mock_open, patch
+
 import requests
 from requests.exceptions import RequestException
-import platform
-import subprocess
 
 # Add the parent directory to the path so we can import the module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from central_setup.central_setup import (
-    run_single_test,
+    check_internet_connection,
+    execute_logic,
     get_github_token,
     get_github_username_and_slug,
     run_program,
-    check_internet_connection,
-    execute_logic,
+    run_single_test,
 )
 
 

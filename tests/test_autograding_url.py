@@ -1,8 +1,9 @@
-import unittest
-from unittest.mock import patch, MagicMock
-import os
 import json
+import os
 import sys
+import unittest
+from unittest.mock import MagicMock, patch
+
 from central_setup.central_setup import execute_logic
 
 

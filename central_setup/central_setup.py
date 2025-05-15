@@ -1,9 +1,10 @@
-import subprocess
-import requests
 import json
-import socket
 import os
 import platform
+import socket
+import subprocess
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()  # this loads the .env file in the current directory
