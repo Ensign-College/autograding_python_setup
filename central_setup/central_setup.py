@@ -115,6 +115,10 @@ def check_internet_connection():
     except OSError:
         return False
 
+def get_autograding_api_url():
+    """Get the autograding API URL from environment variables or use default."""
+    return os.getenv('AUTOGRADING_API') or os.getenv('AUTOGRADING_URL') or 'https://autograding-api-next.vercel.app/api/autograde'
+
 def execute_logic(test_name, test_outputs, student_code, pytest_code, autograding_config):
     github_token = get_github_token()
     headers = {"Authorization": f"Bearer {github_token}"} if github_token else {}
@@ -139,9 +143,12 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
         "gitHubUserName": gitHubUserId
     }
 
+    # Get the API URL from environment variables or use default
+    api_url = get_autograding_api_url()
+
     # Send the POST request
     response = requests.post(
-        'https://autograding-api-next.vercel.app/api/autograde', 
+        api_url,
         json=data, 
         headers=headers
     )
