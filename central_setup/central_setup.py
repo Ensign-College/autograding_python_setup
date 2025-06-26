@@ -81,7 +81,7 @@ def get_github_username_and_slug(github_token):
                 f"Unable to detect slug in {current_directory}.")
     return None, None
 
-def run_program(inputs,program_name):
+def run_program(inputs, program_name):
     """Run the student's program using subprocess and return the output."""
     # Convert the inputs into a single string, each input followed by a newline
     input_data = '\n'.join(inputs) + '\n'
@@ -98,13 +98,19 @@ def run_program(inputs,program_name):
                         # in the returncode attribute, and output & stderr attributes if those streams
                         # were captured.
         )
+
+       # Strip and check that there is output
+        if not result.stdout.strip():
+            raise AssertionError(f"{program_name} produced no output. Ensure your script contains print statements.")
+
         return result.stdout  # Capture standard output
+
     except subprocess.CalledProcessError as e:
         return f"Error: {e.stderr}"  # Return the error message from stderr
+
     except Exception as e:
         return f"Unexpected error: {str(e)}"  # Handle any other exceptions
-    
-    
+ 
 
 def check_internet_connection():
     """Check if there is an active internet connection."""
@@ -158,7 +164,7 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
         relevant_feedback = test_response_data["tests"]
         if relevant_feedback:
             test_feedback = (
-                "\nTest Results:\n"
+                "\nTest Results:\n" 
                 + "\n".join(
                     [
                         f"Test Name: {test['name']}\nPoints Awarded: {test['pointsAwarded']}\nFeedback: {test['feedback']}\n"
