@@ -99,7 +99,7 @@ def run_program(inputs, program_name):
                         # were captured.
         )
 
-        # Strip and check that there is output
+       # Strip and check that there is output
         if not result.stdout.strip():
             raise AssertionError(f"{program_name} produced no output. Ensure your script contains print statements.")
 
