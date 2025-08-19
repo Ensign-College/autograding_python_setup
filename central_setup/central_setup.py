@@ -120,8 +120,7 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
     headers = {"Authorization": f"Bearer {github_token}"} if github_token else {}
 
     gitHubUserId, slug = (None, None)
-    if github_token:
-        gitHubUserId, slug = get_github_username_and_slug(github_token)
+    repositoryName = os.path.basename(os.getcwd()) # we don't need the slug name yet, we will let the autograding api determine that by using the github_token and the repsoitory (directory) name
 
     if test_name:
         print(f"Running test: {test_name}")
@@ -135,8 +134,9 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
         "pytestCode": pytest_code,
         "autogradingConfig": json.dumps(autograding_config),
         "terminalOutputs": list(test_outputs.values()),
-        "slug": slug,
-        "gitHubUserName": gitHubUserId
+        "repositoryName": repositoryName, # this would be a new field, and autograding API could use it and the token to determine the slug name
+        # "slug": slug, we don't have a slug in GitHub actions, so this should not be a required field in the autograding-api
+        "gitHubUserName": gitHubUserId # this should not be mandatory in autograding-api because we may only have the token and the repository name (like in GitHub Actions)
     }
 
     # Send the POST request
