@@ -52,8 +52,8 @@ def get_github_token():
         return None
 
 
-def get_github_username_and_slug(github_token):
-    """Retrieve the GitHub username and derive the slug from the student repository name."""
+def get_github_username_and_repository(github_token):
+    """Retrieve the GitHub username and extract the repository name from the current directory."""
     gitHubUserId = None
     if github_token:
         try:
@@ -70,15 +70,15 @@ def get_github_username_and_slug(github_token):
             print(f"Error verifying GitHub token: {github_error}")
 
     if gitHubUserId:
-        # Derive the slug from the current directory name
+        # Extract the repository name from the current directory
         current_directory = os.path.basename(os.getcwd())
+        # The repository name is typically the directory name without the GitHub username suffix
         if gitHubUserId in current_directory:
             # Handle cases with or without the "-n" suffix
-            slug = current_directory.split(f"-{gitHubUserId}")[0]
-            return gitHubUserId, slug
+            repository_name = current_directory.split(f"-{gitHubUserId}")[0]
+            return gitHubUserId, repository_name
         else:
-            print(
-                f"Unable to detect slug in {current_directory}.")
+            print(f"Unable to detect repository name in {current_directory}.")
     return None, None
 
 def run_program(inputs,program_name):
@@ -119,8 +119,9 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
     github_token = get_github_token()
     headers = {"Authorization": f"Bearer {github_token}"} if github_token else {}
 
-    gitHubUserId, slug = (None, None)
-    repositoryName = os.path.basename(os.getcwd()) # we don't need the slug name yet, we will let the autograding api determine that by using the github_token and the repsoitory (directory) name
+    gitHubUserId, repository_name = (None, None)
+    if github_token:
+        gitHubUserId, repository_name = get_github_username_and_repository(github_token)
 
     if test_name:
         print(f"Running test: {test_name}")
@@ -134,9 +135,8 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
         "pytestCode": pytest_code,
         "autogradingConfig": json.dumps(autograding_config),
         "terminalOutputs": list(test_outputs.values()),
-        "repositoryName": repositoryName, # this would be a new field, and autograding API could use it and the token to determine the slug name
-        # "slug": slug, we don't have a slug in GitHub actions, so this should not be a required field in the autograding-api
-        "gitHubUserName": gitHubUserId # this should not be mandatory in autograding-api because we may only have the token and the repository name (like in GitHub Actions)
+        "repositoryName": repository_name,
+        "gitHubUserName": gitHubUserId
     }
 
     # Send the POST request
