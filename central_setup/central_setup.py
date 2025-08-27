@@ -51,36 +51,6 @@ def get_github_token():
         print(f"Unsupported operating system: {system}")
         return None
 
-
-def get_github_username_and_slug(github_token):
-    """Retrieve the GitHub username and derive the slug from the student repository name."""
-    gitHubUserId = None
-    if github_token:
-        try:
-            github_response = requests.get(
-                'https://api.github.com/user',
-                headers={"Authorization": f"token {github_token}"}
-            )
-            if github_response.ok:
-                github_data = github_response.json()
-                gitHubUserId = github_data.get('login')
-            else:
-                print(f"Unable to verify GitHub token: {github_response.status_code} {github_response.reason}")
-        except requests.exceptions.RequestException as github_error:
-            print(f"Error verifying GitHub token: {github_error}")
-
-    if gitHubUserId:
-        # Derive the slug from the current directory name
-        current_directory = os.path.basename(os.getcwd())
-        if gitHubUserId in current_directory:
-            # Handle cases with or without the "-n" suffix
-            slug = current_directory.split(f"-{gitHubUserId}")[0]
-            return gitHubUserId, slug
-        else:
-            print(
-                f"Unable to detect slug in {current_directory}.")
-    return None, None
-
 def run_program(inputs,program_name):
     """Run the student's program using subprocess and return the output."""
     # Convert the inputs into a single string, each input followed by a newline
@@ -119,9 +89,27 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
     github_token = get_github_token()
     headers = {"Authorization": f"Bearer {github_token}"} if github_token else {}
 
-    gitHubUserId, slug = (None, None)
+    repository_name = None
     if github_token:
-        gitHubUserId, slug = get_github_username_and_slug(github_token)
+        # Try to get repository name from git config if available
+        try:
+            result = subprocess.run(['git', 'config', '--get', 'remote.origin.url'], 
+                                  capture_output=True, text=True, timeout=5)
+            if result.returncode == 0:
+                remote_url = result.stdout.strip()
+                # Extract repository name from git URL
+                if 'github.com' in remote_url:
+                    repository_name = remote_url.split('/')[-1].replace('.git', '')
+        except Exception:
+            pass
+
+    # Check repository access before proceeding
+    if github_token and repository_name:
+        has_access, repo_data = check_repo_access(github_token, repository_name)
+        if not has_access:
+            print(f"Access denied to repository '{repository_name}'. Please ensure you have the correct permissions and try again.")
+            # Return empty values to prevent further execution
+            return {}, {}, "", None
 
     if test_name:
         print(f"Running test: {test_name}")
@@ -135,8 +123,7 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
         "pytestCode": pytest_code,
         "autogradingConfig": json.dumps(autograding_config),
         "terminalOutputs": list(test_outputs.values()),
-        "slug": slug,
-        "gitHubUserName": gitHubUserId
+        "repositoryName": repository_name,
     }
 
     # Send the POST request
