@@ -51,27 +51,6 @@ def get_github_token():
         print(f"Unsupported operating system: {system}")
         return None
 
-
-def check_repo_access(github_token, repository_name):
-    """Check if the user has access to the repository."""
-    try:
-        response = requests.get(
-            f'https://api.github.com/repos/{github_token}/{repository_name}',
-            headers={
-                'Authorization': f"token {github_token}",
-                'Accept': 'application/vnd.github.v3+json'
-            },
-            timeout=10
-        )
-        print(f"Checking repository access for {repository_name}...")
-        return response.status_code == 200, response.json() if response.ok else None
-    except requests.exceptions.RequestException as e:
-        print(f"Error checking repository access: {e}")
-        return False, None
-    except Exception as e:
-        print(f"Unexpected error checking repository access: {e}")
-        return False, None
-
 def run_program(inputs,program_name):
     """Run the student's program using subprocess and return the output."""
     # Convert the inputs into a single string, each input followed by a newline
@@ -123,6 +102,14 @@ def execute_logic(test_name, test_outputs, student_code, pytest_code, autogradin
                     repository_name = remote_url.split('/')[-1].replace('.git', '')
         except Exception:
             pass
+
+    # Check repository access before proceeding
+    if github_token and repository_name:
+        has_access, repo_data = check_repo_access(github_token, repository_name)
+        if not has_access:
+            print(f"Access denied to repository '{repository_name}'. Please ensure you have the correct permissions and try again.")
+            # Return empty values to prevent further execution
+            return {}, {}, "", None
 
     if test_name:
         print(f"Running test: {test_name}")
